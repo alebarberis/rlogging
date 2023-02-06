@@ -1,0 +1,162 @@
+---
+title: "An introduction to `rlogging`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 4
+vignette: >
+  %\VignetteIndexEntry{An introduction to `rlogging`}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+**rlogging** is an helpful package providing an easy way to setup a logging system in R.
+
+## Setup
+Firstly, we load `rlogging`:
+
+```{r setup}
+library(rlogging)
+```
+
+## rlogging
+We present here a simple example to show how to use `rlogging`.
+
+### A `Logger`
+The `?Logger` class is the core of the logging system. 
+
+A `Logger` object is a `list` consisting of 4 elements: 
+
+* `path`: (optional) character vector, a path to the log file to use
+* `con`: (optional) connection to a file
+* `verbose`: logical, whether R should report extra information on progress
+* `level`: character vector, the log level of the logger.
+
+Eight levels are supported:
+
+* `"OFF"`: indicates the logger is inactive
+* `"FATAL"`: indicates a fatal event in the application that prevents it from running
+* `"ERROR"`: indicates an error in the application, possibly recoverable
+* `"WARN"`: indicates an event that might lead to an error
+* `"INFO"`: indicates informational messages
+* `"DEBUG"`: indicates general debugging messages
+* `"TRACE"`: indicates fine-grained debug events
+* `"ALL"`: all levels are considered
+
+Levels are considered ordered: `OFF < FATAL < ERROR < WARN < INFO < DEBUG < TRACE < ALL`.
+For example, if we set the level of a logger to `DEBUG`, then all `INFO`, `WARN`,
+`ERROR`, and `FATAL` events will be logged.
+
+Let's create some loggers with different levels:
+
+```{r logger_setup}
+#Logger with `level` set to "INFO"
+loggerInfo  = createLogger(level = "INFO")
+#Logger with `level` set to "DEBUG"
+loggerDebug = createLogger(level = "DEBUG")
+#Logger with `level` set to "TRACE"
+loggerTrace = createLogger(level = "TRACE")
+```
+
+### Example
+Let's create a simple function to show how to use `rlogging`. For example, we 
+can write a function to calculate the sum of two numbers `a` and `b`:
+
+```{r function_setup}
+mySumFunction <- function(
+    a = 1,
+    b = 2,
+    logger
+  ){
+  #We insert here an informational message
+  logInfo(object = logger, message = "Start of mySumFunction", sep = "\n", add.level = T, add.time = T)
+  
+  #We insert here a fine-grained informational message (trace level)
+  logTrace(object = logger, message = "Check if logger has a connection to a file and (if so) open it...", add.level = T, add.time = T)
+  logger = openCon(object = logger)
+  logTrace(object = logger, message = "DONE", sep = "\n")
+  
+  #We insert here a fine-grained informational message (debug level)
+  logDebug(object = logger, message = "Check input...", add.level = T, add.time = T)
+  if(isFALSE(is.numeric(a))){stop("'a' must be numeric")}
+  if(isFALSE(is.numeric(b))){stop("'b' must be numeric")}
+  logDebug(object = logger, message = "DONE", sep = "\n")
+  
+  #We insert here a fine-grained informational message (debug level)
+  logDebug(object = logger, message = "Compute sum...", add.level = T, add.time = T)
+  out = a + b
+  logDebug(object = logger, message = "DONE", sep = "\n")
+  
+  #We insert here a fine-grained informational message (trace level)
+  logTrace(object = logger, message = "Close an opened connection...", add.level = T, add.time = T)
+  closeCon(object = logger)
+  logTrace(object = logger, message = "DONE", sep = "\n")
+  
+  #We insert here an informational message
+  logInfo(object = logger, message = "End of mySumFunction", sep = "\n", add.level = T, add.time = T)
+  
+  return(out)
+}
+```
+
+The defined function has three arguments in input:
+
+* `a`: a numeric value
+* `b`: a numeric value
+* `logger`: an object of class `Logger`
+
+In the function above, we inserted various messages with different logging
+levels. Let's see what happens when we use different loggers.
+
+For example, let's compute the sum `3 + 4`.
+
+### Log level: `INFO`
+Let's check what happens if we use a logger with the logging level set to 
+`"INFO"`.
+
+```{r log_level_info}
+mySumFunction(
+  a = 3,
+  b = 4,
+  logger = loggerInfo
+)
+```
+
+As expected, only the `INFO` messages are reported.
+
+### Log level: `DEBUG`
+Let's check what happens if we use a logger with the logging level set to 
+`"DEBUG"`.
+
+```{r log_level_debug}
+mySumFunction(
+  a = 3,
+  b = 4,
+  logger = loggerDebug
+)
+```
+As expected, all the messages with level `DEBUG` and above (i.e., 
+`INFO`) are reported.
+
+### Log level: `TRACE`
+Let's check what happens if we use a logger with the logging level set to 
+`"TRACE"`.
+
+```{r log_level_trace}
+mySumFunction(
+  a = 3,
+  b = 4,
+  logger = loggerTrace
+)
+```
+
+As expected, all the messages with level `TRACE` and above (i.e., `DEBUG` and
+`INFO`) are reported.

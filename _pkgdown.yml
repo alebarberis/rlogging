@@ -1,0 +1,26 @@
+url: ~
+template:
+  bootstrap: 5
+reference:
+- title: Logger Class
+  desc: This is the main function to compute the summary scores
+  contents:
+  - createLogger
+- title: Log Functions
+  desc: Functions used for logging
+  contents:
+  - logAll
+  - logTrace
+  - logDebug
+  - logInfo
+  - logWarn
+  - logError
+  - logFatal
+- title: Utility Functions
+  contents:
+  - openCon
+  - closeCon
+  - createLogLine
+  - getLogLine
+  - getShortLogLine
+  - getLongLogLine
