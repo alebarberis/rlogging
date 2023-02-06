@@ -21,3 +21,5 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+URL: https://github.com/alebarberis/rlogging
+BugReports: https://github.com/alebarberis/rlogging/issues
