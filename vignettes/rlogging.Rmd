@@ -38,7 +38,7 @@ A `Logger` object is a `list` consisting of 4 elements:
 * `path`: (optional) character vector, a path to the log file to use
 * `con`: (optional) connection to a file
 * `verbose`: logical, whether R should report extra information on progress
-* `level`: character vector, the log level of the logger.
+* `level`: character vector, the log level of the logger
 
 Eight levels are supported:
 
